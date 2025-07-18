@@ -48,6 +48,52 @@
     });
   };
 
+  const showBookmarks = () => {
+    const bookmarksList = document.createElement("div");
+    bookmarksList.id = "bookmarks-list";
+    bookmarksList.style.position = "absolute";
+    bookmarksList.style.top = "50px";
+    bookmarksList.style.left = "10px";
+    bookmarksList.style.background = "rgba(0, 0, 0, 0.8)";
+    bookmarksList.style.color = "white";
+    bookmarksList.style.padding = "10px";
+    bookmarksList.style.zIndex = "9999";
+    bookmarksList.style.maxHeight = "300px";
+    bookmarksList.style.overflowY = "auto";
+
+    chrome.storage.sync.get([currentVideo], (obj) => {
+      const bookmarks = JSON.parse(obj[currentVideo] || "[]");
+      bookmarks.forEach((bookmark) => {
+        const item = document.createElement("div");
+        item.innerText = bookmark.desc;
+        item.style.cursor = "pointer";
+        item.style.marginBottom = "5px";
+        item.onclick = () => {
+          youtubePlayer.currentTime = bookmark.time;
+        };
+        bookmarksList.appendChild(item);
+      });
+    });
+
+    document.body.appendChild(bookmarksList);
+  };
+
+  const addClearBookmarksButton = () => {
+    const clearBtn = document.createElement("button");
+    clearBtn.innerText = "Clear Bookmarks";
+    clearBtn.style.marginLeft = "10px";
+    clearBtn.className = "ytp-button clear-bookmarks-btn";
+
+    clearBtn.addEventListener("click", () => {
+      chrome.storage.sync.remove([currentVideo]);
+      document.getElementById("bookmarks-list")?.remove();
+    });
+
+    youtubeLeftControls.append(clearBtn);
+  };
+
+  showBookmarks();
+  addClearBookmarksButton();
   newVideoLoaded();
 })();
 
